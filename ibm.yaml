@@ -49,3 +49,21 @@ Resources:
       Tags:
       - Key: Name
         Value: IBM-Pvt
+        
+  IBMPubRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: IBM-Pub-RT
+
+  IBMPvtRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: IBM-Pvt-RT
