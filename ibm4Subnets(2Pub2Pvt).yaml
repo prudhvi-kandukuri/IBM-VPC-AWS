@@ -1,0 +1,136 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: IBM VPC Template 
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+       - Key: Name
+         Value: IBM-VPC
+
+  IBMInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+       - Key: Name
+         Value: IBM-IGW
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+         Ref: VPC
+      InternetGatewayId:
+         Ref: IBMInternetGateway
+
+  IBMPubSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: "us-west-1a"
+      MapPublicIpOnLaunch: 'true'
+      Tags:
+      - Key: Name
+        Value: IBM-Pub1
+
+  IBMPubSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: "us-west-1b"
+      MapPublicIpOnLaunch: 'true'
+      Tags:
+      - Key: Name
+        Value: IBM-Pub2
+
+  IBMPvtSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: "us-west-1a"
+      MapPublicIpOnLaunch: 'false'
+      Tags:
+      - Key: Name
+        Value: IBM-Pvt1
+
+  IBMPvtSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: "us-west-1b"
+      MapPublicIpOnLaunch: 'false'
+      Tags:
+      - Key: Name
+        Value: IBM-Pvt2
+
+  IBMPubRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: IBM-Pub-RT
+
+  IBMPvtRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: IBM-Pvt-RT  
+
+  IBMRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+       RouteTableId:
+         Ref: IBMPubRouteTable
+       DestinationCidrBlock: 0.0.0.0/0
+       GatewayId:
+         Ref: IBMInternetGateway
+
+  IBMPub1SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: IBMPubSubnet1
+      RouteTableId:
+        Ref: IBMPubRouteTable
+
+  IBMPub2SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: IBMPubSubnet2
+      RouteTableId:
+        Ref: IBMPubRouteTable
+
+  IBMPvt1SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: IBMPvtSubnet1
+      RouteTableId:
+        Ref: IBMPvtRouteTable
+
+  IBMPvt2SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: IBMPvtSubnet2
+      RouteTableId:
+        Ref: IBMPvtRouteTable
